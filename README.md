@@ -11,6 +11,39 @@ D.No 14/2, Gandhi Road, Pollachi, Coimbatore - 642001
  "city": "Coimbatore", "state": "Tamil Nadu", "pincode": "642001", "phone": ""}
 ```
 
+## Quick start
+
+**Python** (Python 3.9+; the first call downloads the 1 GB model once, then it runs offline):
+
+```
+pip install india-address-parser
+```
+```python
+from india_address_parser import parse
+parse("D.No 14/2, Gandhi Road, Pollachi, Coimbatore - 642001")
+```
+```
+india-address-parser "No 21, East Car Street, Srirangam, Tiruchirappalli 620006"     # command line
+```
+
+**Node.js** (Node 18+; needs [Ollama](https://ollama.com/download) running):
+
+```
+npm install india-address-parser
+npx india-address-parser --pull          # downloads the model into Ollama, once
+npx india-address-parser "Flat 6, Kaveri Residency, Gandhipuram, Coimbatore 641012"
+```
+```js
+import { parseAddress } from "india-address-parser";
+console.log(await parseAddress("Flat 3B, Sri Murugan Apartments, Peelamedu, Coimbatore 641004"));
+```
+
+**Ollama directly:** `ollama pull hf.co/abr-6024/indian-address-parser-1.5B-GGUF:Q4_K_M`
+
+Every result has the keys `flat, building, street, landmark, area, city, state, pincode, phone`; anything not
+written in the address is an empty string. Package docs: [PyPI](https://pypi.org/project/india-address-parser/),
+[npm](https://www.npmjs.com/package/india-address-parser).
+
 ## Where things are
 
 | What | Link |
