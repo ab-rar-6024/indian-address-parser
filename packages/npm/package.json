@@ -1,7 +1,7 @@
 {
   "name": "india-address-parser",
-  "version": "0.1.0",
-  "description": "Parse messy Indian addresses into structured JSON with a small local model, via Ollama.",
+  "version": "0.2.0",
+  "description": "Parse messy Indian addresses into structured JSON with a small local model, via Ollama or the self-hosted HTTP API.",
   "license": "Apache-2.0",
   "main": "index.js",
   "module": "index.mjs",

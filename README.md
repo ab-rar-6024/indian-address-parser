@@ -38,11 +38,52 @@ import { parseAddress } from "india-address-parser";
 console.log(await parseAddress("Flat 3B, Sri Murugan Apartments, Peelamedu, Coimbatore 641004"));
 ```
 
+**No Ollama, any language: run the HTTP API** (details [below](#http-api-self-hosted)).
+
 **Ollama directly:** `ollama pull hf.co/abr-6024/indian-address-parser-1.5B-GGUF:Q4_K_M`
 
 Every result has the keys `flat, building, street, landmark, area, city, state, pincode, phone`; anything not
 written in the address is an empty string. Package docs: [PyPI](https://pypi.org/project/india-address-parser/),
 [npm](https://www.npmjs.com/package/india-address-parser).
+
+## HTTP API (self-hosted)
+
+Run the model as a small web service, so any backend (Node, PHP, Java, an e-commerce platform, an email pipeline)
+can call it over HTTP without Python or Ollama on the caller's side.
+
+> The server ships in version 0.2.0. Until that is on PyPI, install from this repo:
+> `pip install "india-address-parser[server] @ git+https://github.com/ab-rar-6024/indian-address-parser#subdirectory=packages/python"`.
+> The Docker route builds from this source; the Dockerfile is untested so far (I had no Docker on my machine), so please report problems.
+
+```
+pip install "india-address-parser[server]"
+ADDRESS_API_KEY=choose-a-secret india-address-parser serve --port 8000
+```
+
+or with Docker (from the repo root; the image includes the 1 GB model, needs about 2 GB RAM, no GPU):
+
+```
+docker build -t india-address-parser .
+docker run -p 8000:8000 -e ADDRESS_API_KEY=choose-a-secret india-address-parser
+```
+
+```
+curl -X POST http://localhost:8000/parse   -H "Authorization: Bearer choose-a-secret" -H "Content-Type: application/json"   -d '{"address": "D.No 14/2, Gandhi Road, Pollachi, Coimbatore - 642001"}'
+```
+
+| Endpoint | Body | Returns |
+|---|---|---|
+| `GET /health` | none | `{"status": "ok", ...}` (no key needed) |
+| `POST /parse` | `{"address": "..."}` (up to 500 characters) | the 9 fields |
+| `POST /parse_batch` | `{"addresses": ["...", "..."]}` (up to 100) | `{"results": [...]}`; a bad item becomes `{"error": "..."}` |
+
+- Interactive docs are at `/docs`. Errors: `401` wrong or missing key, `422` bad input or unusable model output.
+- Requests are handled one at a time (one model instance). Expect roughly 3 seconds per address on a laptop CPU
+  and more on small cloud CPUs, so use it for emails, imports and "confirm your address" steps, not to block a checkout.
+- The server does not log request bodies, but your reverse proxy might. Addresses are personal data: keep the service
+  on your own network or behind HTTPS, and set an API key before binding to `0.0.0.0`.
+
+Node client for it: see the [npm package](packages/npm/README.md).
 
 ## Where things are
 

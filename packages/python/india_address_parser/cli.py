@@ -7,8 +7,16 @@ from .parser import AddressParser
 
 
 def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "serve":
+        try:
+            from .server import main as serve
+        except ImportError:
+            sys.exit('the HTTP server needs extra packages: pip install "india-address-parser[server]"')
+        return serve(argv[1:])
     ap = argparse.ArgumentParser(prog="india-address-parser",
-                                 description="Parse Indian addresses into JSON with a local model.")
+                                 description="Parse Indian addresses into JSON with a local model. "
+                                             "Run `india-address-parser serve --help` for the HTTP API.")
     ap.add_argument("address", nargs="*", help="address text; if omitted, one address per line is read from stdin")
     ap.add_argument("--model", help="path to a local .gguf file (default: download Q4_K_M from Hugging Face)")
     ap.add_argument("--version", action="version", version=__version__)

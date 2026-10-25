@@ -1,0 +1,9 @@
+.git
+**/__pycache__
+**/node_modules
+**/dist
+data/
+training/
+showcase/
+gguf/
+packages/npm

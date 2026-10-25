@@ -1,7 +1,8 @@
 # india-address-parser
 
 Parse messy Indian addresses into structured fields with a small local model (1.5B, runs on CPU, no API key).
-This package is a small client for [Ollama](https://ollama.com), which runs the model on your machine.
+This package is a small client. It talks either to [Ollama](https://ollama.com) on your machine, or to the
+self-hosted HTTP API (`india-address-parser serve`, see below), so a store or email backend needs no Ollama.
 
 ```js
 const { parseAddress } = require("india-address-parser");
@@ -54,6 +55,23 @@ cat addresses.txt | npx india-address-parser        # one address per line, one 
 
 Every result has exactly these keys: `flat, building, street, landmark, area, city, state, pincode, phone`.
 Anything not written in the address is an empty string.
+
+## Without Ollama: use the HTTP API
+
+From Node.js, point the client at that server instead of Ollama:
+
+```js
+import { parseAddress, AddressParser } from "india-address-parser";
+const opts = { apiUrl: "http://localhost:8000", apiKey: "choose-a-secret" };
+await parseAddress("Flat 3B, Sri Murugan Apartments, Peelamedu, Coimbatore 641004", opts);
+await new AddressParser(opts).parseMany(["12, Mettu Street, Karaikudi 630001", "..."]);   // one batch request
+```
+
+Or from any language, just call `POST /parse`.
+
+Command line: `npx india-address-parser --api-url http://localhost:8000 --api-key choose-a-secret "<address>"`
+(or set `ADDRESS_API_URL` and `ADDRESS_API_KEY`). How to run the server: [Python package](https://pypi.org/project/india-address-parser/)
+and the [GitHub repo](https://github.com/ab-rar-6024/indian-address-parser).
 
 ## Conventions
 

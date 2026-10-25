@@ -15,6 +15,10 @@ export interface Options {
   host?: string;
   /** Ollama model name. Default hf.co/abr-6024/indian-address-parser-1.5B-GGUF:Q4_K_M */
   model?: string;
+  /** URL of an `india-address-parser serve` HTTP server, e.g. http://localhost:8000. If set, Ollama is not used. */
+  apiUrl?: string;
+  /** Bearer token for that server, if it was started with an API key. */
+  apiKey?: string;
 }
 
 export function parseAddress(address: string, options?: Options): Promise<ParsedAddress>;

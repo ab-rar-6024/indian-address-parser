@@ -41,14 +41,31 @@ async function post(host, path, body) {
   return res.json();
 }
 
+async function callApi(apiUrl, apiKey, path, body) {
+  let res;
+  try {
+    res = await fetch(apiUrl.replace(/\/+$/, "") + path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(apiKey ? { Authorization: "Bearer " + apiKey } : {}) },
+      body: JSON.stringify(body),
+    });
+  } catch (err) {
+    throw new Error(`could not reach the address API at ${apiUrl}: ${err.message}`);
+  }
+  if (!res.ok) throw new Error(`address API returned HTTP ${res.status}: ${await res.text()}`);
+  return res.json();
+}
+
 /**
- * Parse one Indian address with a local Ollama server.
+ * Parse one Indian address with a local Ollama server, or with an india-address-parser HTTP server
+ * when `options.apiUrl` is set (see "india-address-parser serve" in the Python package).
  * Returns an object with flat, building, street, landmark, area, city, state, pincode, phone (empty string if missing).
  * `city` is the district (or metro) name.
  */
 async function parseAddress(address, options = {}) {
   if (typeof address !== "string" || !address.trim()) throw new Error("address is empty");
-  const { host = DEFAULT_HOST, model = DEFAULT_MODEL } = options;
+  const { host = DEFAULT_HOST, model = DEFAULT_MODEL, apiUrl, apiKey } = options;
+  if (apiUrl) return clean(JSON.stringify(await callApi(apiUrl, apiKey, "/parse", { address: address.trim() })));
   const reply = await post(host, "/api/chat", {
     model,
     stream: false,
@@ -76,6 +93,14 @@ class AddressParser {
     return parseAddress(address, this.options);
   }
   async parseMany(addresses) {
+    const { apiUrl, apiKey } = this.options;
+    if (apiUrl) {
+      const { results } = await callApi(apiUrl, apiKey, "/parse_batch", { addresses: addresses.map((a) => String(a).trim()) });
+      return results.map((r) => {
+        if (r.error) throw new Error(r.error);
+        return clean(JSON.stringify(r));
+      });
+    }
     const out = [];
     for (const a of addresses) out.push(await this.parse(a));
     return out;
