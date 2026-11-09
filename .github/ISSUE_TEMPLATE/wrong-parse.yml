@@ -1,0 +1,45 @@
+name: Wrong parse report
+description: The model returned a wrong or empty field for an address
+title: "[wrong parse] "
+labels: ["wrong-parse"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve the model. **Please remove names, phone numbers and house numbers you do not want public** before pasting. Replace them with made-up values; the shape of the address is what matters.
+  - type: textarea
+    id: address
+    attributes:
+      label: Address (input)
+      description: The text you gave the model, exactly as written (anonymised).
+      placeholder: "Flat 3B, Sri Murugan Apartments, Peelamedu, Coimbatore 641004"
+    validations:
+      required: true
+  - type: textarea
+    id: got
+    attributes:
+      label: What the model returned
+      description: Paste the JSON output.
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What it should have returned
+      description: Which fields are wrong and what the right values are. Remember `city` is the district and `flat` is the door number only.
+    validations:
+      required: true
+  - type: dropdown
+    id: how
+    attributes:
+      label: How did you run it?
+      options:
+        - pip package
+        - npm package (Ollama)
+        - npm package (HTTP API)
+        - HTTP API / Docker
+        - Original weights (transformers)
+        - GGUF with llama.cpp or Ollama
+    validations:
+      required: true
