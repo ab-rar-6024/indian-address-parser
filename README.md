@@ -51,7 +51,7 @@ written in the address is an empty string. Package docs: [PyPI](https://pypi.org
 Run the model as a small web service, so any backend (Node, PHP, Java, an e-commerce platform, an email pipeline)
 can call it over HTTP without Python or Ollama on the caller's side.
 
-> The Docker route builds from this source; the Dockerfile is untested so far (I had no Docker on my machine), so please report problems.
+> The Docker image is built and smoke-tested in CI on every change to the Dockerfile (health check, API-key check, one real parse).
 
 ```
 pip install "india-address-parser[server]"
