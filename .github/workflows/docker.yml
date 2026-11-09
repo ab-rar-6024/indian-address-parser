@@ -24,7 +24,10 @@ jobs:
           docker logs api
           exit 1
       - name: Reject a request without the key
-        run: test "$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8000/parse -H 'Content-Type: application/json' -d '{"address":"x"}')" = "401"
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' -X POST localhost:8000/parse -H 'Content-Type: application/json' -d '{"address":"x"}')
+          echo "status without key: $code"
+          test "$code" = "401"
       - name: Parse a real address
         run: |
           out=$(curl -sf -X POST localhost:8000/parse -H 'Authorization: Bearer ci-secret' -H 'Content-Type: application/json' \
