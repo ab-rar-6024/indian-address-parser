@@ -1,0 +1,38 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  python:
+    # ubuntu-latest no longer ships Python 3.9, which the package still supports
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      # The tests replace llama_cpp with a fake, so the real (compiled) llama-cpp-python is not installed here.
+      - run: pip install --no-deps -e packages/python
+      - run: pip install pytest httpx fastapi uvicorn "huggingface_hub>=0.23"
+      - run: python -m pytest -q packages/python/tests
+
+  node:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node-version: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: node --test
+        working-directory: packages/npm
